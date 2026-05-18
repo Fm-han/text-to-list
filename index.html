@@ -1,158 +1,139 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>鏂囨湰杞垪琛ㄥ伐鍏?/title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#fafafa;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding:20px;min-height:100vh}
-.container{max-width:700px;margin:0 auto}
-h1{text-align:center;color:#333;margin-bottom:24px;font-size:22px}
-.card{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:24px;margin-bottom:16px}
-label{display:block;font-weight:600;margin-bottom:6px;color:#555;font-size:14px}
-textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;resize:vertical}
-.btn{background:#007bff;color:#fff;border:none;padding:8px 20px;border-radius:4px;cursor:pointer;font-size:14px;margin-top:8px}
-.btn:hover{background:#0056b3}
-.btn-green{background:#28a745}
-.btn-green:hover{background:#218838}
-.delimiters{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-.delim-btn{padding:6px 14px;border:1px solid #ddd;background:#fff;border-radius:4px;cursor:pointer;font-size:13px;transition:all .15s}
-.delim-btn.active{background:#007bff;color:#fff;border-color:#007bff}
-.delim-btn:hover{border-color:#007bff}
-.output{background:#f5f5f5;padding:12px;border-radius:4px;font-family:monospace;font-size:14px;margin-top:12px;min-height:100px;max-height:400px;overflow-y:auto;white-space:pre-wrap;line-height:1.8}
-.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-.row{display:flex;gap:12px;align-items:center;margin-bottom:12px}
-.row input{padding:8px;border:1px solid #ddd;border-radius:4px;font-size:14px}
-.row label{margin:0;white-space:nowrap}
-.info{background:#e7f3ff;padding:10px;border-radius:4px;font-size:13px;color:#0066cc;margin-top:8px}
-.list-item{padding:4px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
-.list-item:last-child{border-bottom:none}
-.list-item .idx{color:#999;font-size:12px;min-width:40px}
-.list-item .val{flex:1}
-.list-item .rm{background:none;border:none;color:#999;cursor:pointer;font-size:16px;padding:0 4px}
-.list-item .rm:hover{color:#e74c3c}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本转列表工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fafafa; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { font-size: 1.25rem; font-weight: 600; margin-bottom: 16px; color: #333; }
+        .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 24px; margin-bottom: 16px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; }
+        textarea { width: 100%; min-height: 200px; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace; font-size: 14px; resize: vertical; }
+        select, input { padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        select { width: 200px; }
+        .btn { padding: 8px 20px; border-radius: 4px; cursor: pointer; border: none; font-size: 14px; margin-right: 8px; }
+        .btn-blue { background: #007bff; color: #fff; }
+        .btn-green { background: #28a745; color: #fff; }
+        .btn-gray { background: #6c757d; color: #fff; }
+        .output { background: #f5f5f5; padding: 16px; border-radius: 4px; white-space: pre-wrap; font-family: monospace; font-size: 14px; min-height: 200px; }
+        .preview-list { background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 16px; }
+        .preview-list li { margin-left: 20px; margin-bottom: 6px; }
+    </style>
 </head>
 <body>
-<div class="container">
-<h1>鏂囨湰杞垪琛ㄥ伐鍏?/h1>
-<div class="card">
-<label>杈撳叆鏂囨湰</label>
-<textarea id="input" rows="6" placeholder="杈撳叆瑕佹媶鍒嗙殑鏂囨湰..."></textarea>
-<label>鍒嗛殧鏂瑰紡</label>
-<div class="delimiters">
-<div class="delim-btn active" onclick="setDelim('line')">鎸夎鎷嗗垎</div>
-<div class="delim-btn" onclick="setDelim('comma')">鎸夐€楀彿鎷嗗垎</div>
-<div class="delim-btn" onclick="setDelim('space')">鎸夌┖鏍兼媶鍒?/div>
-<div class="delim-btn" onclick="setDelim('tab')">鎸塗ab鎷嗗垎</div>
-<div class="delim-btn" onclick="setDelim('semicolon')">鎸夊垎鍙锋媶鍒?/div>
-<div class="delim-btn" onclick="setDelim('custom')">鑷畾涔?/div>
-</div>
-<div class="row" id="customRow" style="display:none">
-<label>鑷畾涔夊垎闅旂锛?/label>
-<input type="text" id="customDelim" placeholder="杈撳叆鍒嗛殧绗?>
-</div>
-<div class="row">
-<label>鍓嶇紑锛?/label>
-<input type="text" id="prefix" value="" style="width:80px" placeholder="濡? - ">
-<label>缂栧彿锛?/label>
-<select id="numbering" style="padding:8px;border:1px solid #ddd;border-radius:4px;font-size:14px">
-<option value="none">鏃?/option>
-<option value="1.">1. 2. 3.</option>
-<option value="1)">1) 2) 3)</option>
-<option value="鈥?>鈥?绗﹀彿</option>
-</select>
-<label>鍘婚噸锛?/label>
-<input type="checkbox" id="dedup">
-</div>
-<button class="btn" onclick="convert()">杞崲</button>
-</div>
-<div class="card">
-<label>杞崲缁撴灉</label>
-<div class="info" id="info"></div>
-<div class="output" id="output"></div>
-<div class="actions">
-<button class="btn btn-green" onclick="copyResult()">澶嶅埗缁撴灉</button>
-<button class="btn" onclick="copyJson()">澶嶅埗涓篔SON鏁扮粍</button>
-<button class="btn" onclick="copyCsv()">澶嶅埗涓篊SV</button>
-<button class="btn" onclick="downloadTxt()">涓嬭浇TXT</button>
-</div>
-</div>
-</div>
-<script>
-let currentDelim='line';
-let currentItems=[];
-function setDelim(d){
-currentDelim=d;
-document.querySelectorAll('.delim-btn').forEach(b=>b.classList.remove('active'));
-event.target.classList.add('active');
-document.getElementById('customRow').style.display=d==='custom'?'flex':'none';
-}
-function convert(){
-const input=document.getElementById('input').value;
-const customDelim=document.getElementById('customDelim').value;
-let items;
-switch(currentDelim){
-case 'line':items=input.split(/\r?\n/);break;
-case 'comma':items=input.split(/[,锛宂/);break;
-case 'space':items=input.split(/\s+/);break;
-case 'tab':items=input.split(/\t/);break;
-case 'semicolon':items=input.split(/[;锛沒/);break;
-case 'custom':items=input.split(customDelim||',');break;
-default:items=input.split(/\r?\n/);
-}
-items=items.map(s=>s.trim()).filter(s=>s.length>0);
-if(document.getElementById('dedup').checked){items=[...new Set(items)]}
-currentItems=items;
-const prefix=document.getElementById('prefix').value;
-const numbering=document.getElementById('numbering').value;
-const output=document.getElementById('output');
-output.innerHTML=items.map((item,i)=>{
-let prefixStr=prefix;
-if(numbering==='1.')prefixStr+=(i+1)+'. ';
-else if(numbering==='1)')prefixStr+=(i+1)+') ';
-else if(numbering==='鈥?)prefixStr+='鈥?';
-return `<div class="list-item"><span class="idx">${i+1}.</span><span class="val">${escHtml(prefixStr+item)}</span><button class="rm" onclick="removeItem(${i})">脳</button></div>`;
-}).join('');
-document.getElementById('info').textContent=`鍏?${items.length} 椤筦;
-}
-function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function removeItem(i){
-currentItems.splice(i,1);
-const prefix=document.getElementById('prefix').value;
-const numbering=document.getElementById('numbering').value;
-const output=document.getElementById('output');
-output.innerHTML=currentItems.map((item,j)=>{
-let prefixStr=prefix;
-if(numbering==='1.')prefixStr+=(j+1)+'. ';
-else if(numbering==='1)')prefixStr+=(j+1)+') ';
-else if(numbering==='鈥?)prefixStr+='鈥?';
-return `<div class="list-item"><span class="idx">${j+1}.</span><span class="val">${escHtml(prefixStr+item)}</span><button class="rm" onclick="removeItem(${j})">脳</button></div>`;
-}).join('');
-document.getElementById('info').textContent=`鍏?${currentItems.length} 椤筦;
-}
-function getResultText(){
-const prefix=document.getElementById('prefix').value;
-const numbering=document.getElementById('numbering').value;
-return currentItems.map((item,i)=>{
-let p=prefix;
-if(numbering==='1.')p+=(i+1)+'. ';
-else if(numbering==='1)')p+=(i+1)+') ';
-else if(numbering==='鈥?)p+='鈥?';
-return p+item;
-}).join('\n');
-}
-function copyResult(){
-navigator.clipboard.writeText(getResultText());
-alert('宸插鍒?');
-}
-function copyJson(){navigator.clipboard.writeText(JSON.stringify(currentItems));alert('宸插鍒禞SON鏁扮粍!')}
-function copyCsv(){navigator.clipboard.writeText(currentItems.join(','));alert('宸插鍒禖SV!')}
-function downloadTxt(){
-const b=new Blob([getResultText()],{type:'text/plain'});
-const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='list.txt';a.click();
-}
-</script>
+    <div class="container">
+        <h1>文本转列表工具</h1>
+        <div class="card">
+            <div class="form-group">
+                <label>输入文本（用分隔符分隔）</label>
+                <textarea id="input" placeholder="例如：苹果,香蕉,橙子
+或：一二三四五"></textarea>
+            </div>
+            <div class="form-group">
+                <label>分隔符</label>
+                <select id="delimiter" onchange="updateCustom()">
+                    <option value=",">逗号 (,)</option>
+                    <option value="\n">换行符</option>
+                    <option value=" ">空格</option>
+                    <option value=";">分号 (;)</option>
+                    <option value="|">竖线 (|)</option>
+                    <option value="custom">自定义</option>
+                </select>
+            </div>
+            <div class="form-group" id="customGroup" style="display:none;">
+                <label>自定义分隔符</label>
+                <input type="text" id="customDelimiter" placeholder="输入自定义分隔符">
+            </div>
+            <button class="btn btn-blue" onclick="convert()">转换为列表</button>
+            <button class="btn btn-gray" onclick="clearAll()">清空</button>
+        </div>
+        <div class="card">
+            <label>输出格式</label>
+            <div class="output" id="output"></div>
+            <div style="margin-top: 16px;">
+                <button class="btn btn-green" onclick="copyOutput()">复制结果</button>
+            </div>
+        </div>
+        <div class="card">
+            <label>预览</label>
+            <div class="preview-list">
+                <ol id="preview"></ol>
+            </div>
+        </div>
+    </div>
+    <script>
+        function updateCustom() {
+            const select = document.getElementById('delimiter');
+            document.getElementById('customGroup').style.display = 
+                select.value === 'custom' ? 'block' : 'none';
+        }
+        
+        function getDelimiter() {
+            const select = document.getElementById('delimiter').value;
+            if (select === 'custom') {
+                return document.getElementById('customDelimiter').value || ',';
+            }
+            return select;
+        }
+        
+        function convert() {
+            const input = document.getElementById('input').value;
+            const delimiter = getDelimiter();
+            const output = document.getElementById('output');
+            const preview = document.getElementById('preview');
+            
+            if (!input.trim()) {
+                output.textContent = '请输入文本';
+                return;
+            }
+            
+            let items;
+            if (delimiter === '\n') {
+                items = input.split('\n').filter(item => item.trim());
+            } else {
+                items = input.split(delimiter).map(item => item.trim()).filter(item => item);
+            }
+            
+            if (items.length === 0) {
+                output.textContent = '未能解析出任何项';
+                return;
+            }
+            
+            // Generate numbered list
+            let numberedOutput = '';
+            items.forEach((item, index) => {
+                numberedOutput += `${index + 1}. ${item}\n`;
+            });
+            
+            // Generate bullet list
+            let bulletOutput = '';
+            items.forEach(item => {
+                bulletOutput += `• ${item}\n`;
+            });
+            
+            output.textContent = `【带序号】\n${numberedOutput}\n【带圆点】\n${bulletOutput}`;
+            
+            // Update preview
+            preview.innerHTML = items.map(item => `<li>${item}</li>`).join('');
+        }
+        
+        function copyOutput() {
+            const output = document.getElementById('output').textContent;
+            if (!output || output === '请输入文本') return;
+            navigator.clipboard.writeText(output).then(() => {
+                alert('已复制!');
+            });
+        }
+        
+        function clearAll() {
+            document.getElementById('input').value = '';
+            document.getElementById('output').textContent = '';
+            document.getElementById('preview').innerHTML = '';
+        }
+    </script>
 </body>
 </html>
